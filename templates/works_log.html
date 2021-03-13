@@ -14,7 +14,7 @@
             </tr>
             <tr bgcolor="lightgray">
                 <th> {{ item[0] }} </th>
-                <th> {{ item[1] }} </th>
+                <th> {{ item[1][0] }} </th>
                 <th> {{ item[2] }} </th>
                 <th> {{ item[3] }} </th>
 
@@ -25,6 +25,11 @@
                 {% endif %}
             </tr>
         </table>
+        {% if current_user.is_authenticated and (current_user.id == 1 or current_user.id == item[1][1]) %}
+            <br>
+            <a class="btn btn-success" href="{{'/updjob/' + item[5]}}"> Изменить задачу </a>
+            <a class="btn btn-success" href="{{'/deljob/' + item[5]}}"> Удалить задачу </a>
+        {% endif %}
         <br>
         <br>
         <br>

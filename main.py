@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template
 from flask_login import LoginManager, logout_user, login_required
 
 from datetime import datetime
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 from data import db_session
 from data.users import User
 from data.jobs import Jobs
@@ -62,10 +62,11 @@ def works_log():
 
     db_sess = db_session.create_session()
     params["works"] = list(map(lambda x: [x.job,
-                                          load_user(x.team_leader).surname + ' ' + load_user(x.team_leader).name,
+                                          [load_user(x.team_leader).surname + ' ' + load_user(x.team_leader).name, load_user(x.team_leader).id],
                                           x.work_size,
                                           x.collaborators,
-                                          x.is_finished],
+                                          x.is_finished,
+                                          str(x.id)],
                                db_sess.query(Jobs).all()))
 
     print(params["works"])
@@ -81,12 +82,51 @@ def add_job():
             job=form.job.data,
             work_size=form.work_size.data,
             collaborators=form.collaborators.data,
+            is_finished=form.is_finished.data
         )
         db_sess = db_session.create_session()
         db_sess.add(job)
         db_sess.commit()
         return redirect('/')
     return render_template('add_job.html', title='Новая работа', form=form)
+
+
+@app.route('/updjob/<int:id>', methods=['GET', 'POST'])
+def update_job(id):
+    form = JobForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+
+        form.team_leader.data = job.team_leader
+        form.job.data = job.job
+        form.work_size.data = job.work_size
+        form.collaborators.data = job.collaborators
+        form.is_finished.data = job.is_finished
+
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+        job.team_leader = form.team_leader.data
+        job.job = form.job.data
+        job.work_size = form.work_size.data
+        job.collaborators = form.collaborators.data
+        job.is_finished = form.is_finished.data
+        db_sess.commit()
+
+        print(form.team_leader.data, form.job.data, form.work_size.data, form.collaborators.data, form.is_finished.data)
+
+        return redirect('/')
+    return render_template('add_job.html', title='Новая работа', form=form)
+
+
+@app.route('/deljob/<int:id>', methods=['GET', 'POST'])
+def delete_job(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(Jobs).filter(Jobs.id == id).first()
+    db_sess.delete(user)
+    db_sess.commit()
+    return redirect('/')
 
 
 @app.route('/register', methods=['GET', 'POST'])
