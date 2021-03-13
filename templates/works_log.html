@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Список задач</h1>
+{% for item in works %}
+        <div> задача №{{ loop.index }}</div>
+        <table width="1000">
+            <tr bgcolor="lightgray">
+                <th> Описание </th>
+                <th> Ответственный </th>
+                <th> Длительность </th>
+                <th> Помошники </th>
+                <th> Статус </th>
+            </tr>
+            <tr bgcolor="lightgray">
+                <th> {{ item[0] }} </th>
+                <th> {{ item[1] }} </th>
+                <th> {{ item[2] }} </th>
+                <th> {{ item[3] }} </th>
+
+                {% if item[4] %}
+                    <th> Завершена </th>
+                {% else %}
+                    <th> Не завершена </th>
+                {% endif %}
+            </tr>
+        </table>
+        <br>
+        <br>
+        <br>
+    {% endfor %}
+{% endblock %}
