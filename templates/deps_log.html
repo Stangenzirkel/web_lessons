@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Список департаментов</h1>
+<a class="btn btn-success" href="/"> Перейти к списку работ </a>
+{% if current_user.is_authenticated %}
+            <a class="btn btn-success" href="/adddep">Добавить департамент</a>
+            <br>
+{% endif %}
+<br>
+<br>
+{% for item in deps %}
+        <div> задача №{{ loop.index }}</div>
+        <table width="1000">
+            <tr bgcolor="lightgray">
+                <th> Название </th>
+                <th> Глава </th>
+                <th> Сотрудники </th>
+                <th> Email </th>
+            </tr>
+            <tr bgcolor="lightgray">
+                <th> {{ item[0] }} </th>
+                <th> {{ item[1][0] }} </th>
+                <th> {{ item[2] }} </th>
+                <th> {{ item[3] }} </th>
+
+            </tr>
+        </table>
+        {% if current_user.is_authenticated and (current_user.id == 1 or current_user.id == item[1][1]) %}
+            <br>
+            <a class="btn btn-success" href="{{'/upddep/' + item[4]}}"> Изменить департамент </a>
+            <a class="btn btn-success" href="{{'/deldep/' + item[4]}}"> Удалить департамент </a>
+        {% endif %}
+        <br>
+        <br>
+        <br>
+    {% endfor %}
+{% endblock %}

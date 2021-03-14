@@ -15,11 +15,10 @@
         <a class="navbar-brand" href="#"> Страница миссии </a>
         {% if current_user.is_authenticated %}
             <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-            <a class="btn btn-success" href="/addjob">Добавить задачу</a>
         {% else %}
             <p>
-                <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
-                <a class="btn btn-success" href="/login">Войти</a>
+                <a class="navbar-brand" href="/register">Зарегистрироваться</a>
+                <a class="navbar-brand" href="/login">Войти</a>
             </p>
         {% endif %}
     </nav>

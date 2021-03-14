@@ -6,9 +6,11 @@ from flask import Flask, render_template, redirect, request
 from data import db_session
 from data.users import User
 from data.jobs import Jobs
+from data.departments import Department
 from forms.login import LoginForm
 from forms.add_job import JobForm
 from forms.register import RegisterForm
+from forms.add_dep import DepForm
 from flask_login import login_user, logout_user
 
 app = Flask(__name__)
@@ -69,8 +71,23 @@ def works_log():
                                           str(x.id)],
                                db_sess.query(Jobs).all()))
 
-    print(params["works"])
     return render_template('works_log.html', **params)
+
+
+@app.route('/departments', methods=['GET', 'POST'])
+def deps_log():
+    params = dict()
+    params["title"] = "Список департаментов"
+
+    db_sess = db_session.create_session()
+    params["deps"] = list(map(lambda x: [x.title,
+                                         [load_user(x.chief).surname + ' ' + load_user(x.chief).name, load_user(x.chief).id],
+                                         x.members,
+                                         x.email,
+                                         str(x.id)],
+                              db_sess.query(Department).all()))
+
+    return render_template('deps_log.html', **params)
 
 
 @app.route('/addjob', methods=['GET', 'POST'])
@@ -88,7 +105,7 @@ def add_job():
         db_sess.add(job)
         db_sess.commit()
         return redirect('/')
-    return render_template('add_job.html', title='Новая работа', form=form)
+    return render_template('add_job.html', title='Новая задача', form=form)
 
 
 @app.route('/updjob/<int:id>', methods=['GET', 'POST'])
@@ -114,19 +131,68 @@ def update_job(id):
         job.is_finished = form.is_finished.data
         db_sess.commit()
 
-        print(form.team_leader.data, form.job.data, form.work_size.data, form.collaborators.data, form.is_finished.data)
-
         return redirect('/')
-    return render_template('add_job.html', title='Новая работа', form=form)
+    return render_template('add_job.html', title='Изменение задачи', form=form)
 
 
 @app.route('/deljob/<int:id>', methods=['GET', 'POST'])
 def delete_job(id):
     db_sess = db_session.create_session()
-    user = db_sess.query(Jobs).filter(Jobs.id == id).first()
-    db_sess.delete(user)
+    job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+    db_sess.delete(job)
     db_sess.commit()
     return redirect('/')
+
+
+@app.route('/adddep', methods=['GET', 'POST'])
+def add_dep():
+    form = DepForm()
+    if form.validate_on_submit():
+        dep = Department(
+            chief=form.chief.data,
+            title=form.title.data,
+            members=form.members.data,
+            email=form.email.data
+        )
+        db_sess = db_session.create_session()
+        db_sess.add(dep)
+        db_sess.commit()
+        return redirect('/departments')
+    return render_template('add_dep.html', title='Новый департамент', form=form)
+
+
+@app.route('/upddep/<int:id>', methods=['GET', 'POST'])
+def update_dep(id):
+    form = DepForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        dep = db_sess.query(Department).filter(Department.id == id).first()
+
+        form.chief.data = dep.chief
+        form.title.data = dep.title
+        form.members.data = dep.members
+        form.email.data = dep.email
+
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        dep = db_sess.query(Department).filter(Department.id == id).first()
+        dep.chief = form.chief.data
+        dep.title = form.title.data
+        dep.members = form.members.data
+        dep.email = form.email.data
+        db_sess.commit()
+
+        return redirect('/departments')
+    return render_template('add_dep.html', title='Изменение департамента', form=form)
+
+
+@app.route('/deldep/<int:id>', methods=['GET', 'POST'])
+def delete_dep(id):
+    db_sess = db_session.create_session()
+    dep = db_sess.query(Department).filter(Department.id == id).first()
+    db_sess.delete(dep)
+    db_sess.commit()
+    return redirect('/departments')
 
 
 @app.route('/register', methods=['GET', 'POST'])

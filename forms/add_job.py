@@ -10,4 +10,4 @@ class JobForm(FlaskForm):
     work_size = IntegerField('Длительность', validators=[DataRequired()])
     collaborators = StringField('Помошники')
     is_finished = BooleanField('Статус')
-    submit = SubmitField('Создать')
+    submit = SubmitField('Принять')
