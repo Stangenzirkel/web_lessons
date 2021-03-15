@@ -41,6 +41,15 @@
         {% endfor %}
     </p>
     <p>
+        {{ form.type.label }}<br>
+        {{ form.type(class="form-control") }}<br>
+        {% for error in form.type.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
         {{ form.is_finished.label }}
         {{ form.is_finished }}<br>
         {% for error in form.is_finished.errors %}

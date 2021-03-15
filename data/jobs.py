@@ -18,6 +18,18 @@ class Jobs(SqlAlchemyBase):
     end_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                  default=datetime.datetime.now)
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    type = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("types.id"))
 
     def __repr__(self):
         return f'<JOBS> {self.id} {self.job}'
+
+
+class Type(SqlAlchemyBase):
+    __tablename__ = 'types'
+
+    id = sqlalchemy.Column(sqlalchemy.Integer,
+                           primary_key=True, autoincrement=True)
+    title = sqlalchemy.Column(sqlalchemy.String)
+
+    def __repr__(self):
+        return f'<TYPE> {self.id} {self.title}'

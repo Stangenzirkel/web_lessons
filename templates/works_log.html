@@ -17,6 +17,7 @@
                 <th> Ответственный </th>
                 <th> Длительность </th>
                 <th> Помошники </th>
+                <th> Категория </th>
                 <th> Статус </th>
             </tr>
             <tr bgcolor="lightgray">
@@ -24,8 +25,9 @@
                 <th> {{ item[1][0] }} </th>
                 <th> {{ item[2] }} </th>
                 <th> {{ item[3] }} </th>
+                <th> {{ item[4] }} </th>
 
-                {% if item[4] %}
+                {% if item[5] %}
                     <th> Завершена </th>
                 {% else %}
                     <th> Не завершена </th>
@@ -34,8 +36,8 @@
         </table>
         {% if current_user.is_authenticated and (current_user.id == 1 or current_user.id == item[1][1]) %}
             <br>
-            <a class="btn btn-success" href="{{'/updjob/' + item[5]}}"> Изменить задачу </a>
-            <a class="btn btn-success" href="{{'/deljob/' + item[5]}}"> Удалить задачу </a>
+            <a class="btn btn-success" href="{{'/updjob/' + item[6]}}"> Изменить задачу </a>
+            <a class="btn btn-success" href="{{'/deljob/' + item[6]}}"> Удалить задачу </a>
         {% endif %}
         <br>
         <br>

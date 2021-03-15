@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Flask, render_template, redirect, request
 from data import db_session
 from data.users import User
-from data.jobs import Jobs
+from data.jobs import Jobs, Type
 from data.departments import Department
 from forms.login import LoginForm
 from forms.add_job import JobForm
@@ -67,6 +67,7 @@ def works_log():
                                           [load_user(x.team_leader).surname + ' ' + load_user(x.team_leader).name, load_user(x.team_leader).id],
                                           x.work_size,
                                           x.collaborators,
+                                          db_sess.query(Type).get(x.type).title,
                                           x.is_finished,
                                           str(x.id)],
                                db_sess.query(Jobs).all()))
@@ -99,6 +100,7 @@ def add_job():
             job=form.job.data,
             work_size=form.work_size.data,
             collaborators=form.collaborators.data,
+            type=form.type.data,
             is_finished=form.is_finished.data
         )
         db_sess = db_session.create_session()
@@ -119,6 +121,7 @@ def update_job(id):
         form.job.data = job.job
         form.work_size.data = job.work_size
         form.collaborators.data = job.collaborators
+        form.type.data = job.type
         form.is_finished.data = job.is_finished
 
     if form.validate_on_submit():
@@ -128,6 +131,7 @@ def update_job(id):
         job.job = form.job.data
         job.work_size = form.work_size.data
         job.collaborators = form.collaborators.data
+        job.type = form.type.data
         job.is_finished = form.is_finished.data
         db_sess.commit()
 
