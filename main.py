@@ -3,7 +3,7 @@ from flask_login import LoginManager, logout_user, login_required
 
 from datetime import datetime
 from flask import Flask, render_template, redirect, request
-from data import db_session, jobs_api
+from data import db_session, jobs_api, user_api
 from data.users import User
 from data.jobs import Jobs, Type
 from data.departments import Department
@@ -14,6 +14,10 @@ from forms.add_dep import DepForm
 from flask_login import login_user, logout_user
 from flask import make_response
 from flask import jsonify
+from requests import get
+
+import os
+print(os.getcwd())
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -28,20 +32,20 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response(jsonify({'error': 'Not found - 404'}), 404)
 
 
 @app.errorhandler(405)
 def method_not_allowed(error):
-    return make_response(jsonify({'error': 'Method Not Allowed'}), 405)
+    return make_response(jsonify({'error': 'Method Not Allowed - 405'}), 405)
 
 
 def main():
     db_session.global_init("db/project.db")
     app.register_blueprint(jobs_api.blueprint)
+    app.register_blueprint(user_api.blueprint)
     app.run()
 
 
@@ -68,6 +72,50 @@ def login():
 def logout():
     logout_user()
     return redirect("/")
+
+
+@app.route('/user_show/<int:user_id>', methods=['GET', 'POST'])
+def map(user_id):
+    params = dict()
+    params["title"] = "Карта пользователя"
+    params["user"] = get(f'http://localhost:5000/api/user/{user_id}').json()['user']
+
+    city = params["user"]["city_from"]
+    map_mode = "map"
+    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": city,
+        "format": "json"}
+
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": city,
+        "format": "json"}
+
+    response = get(geocoder_api_server, params=geocoder_params)
+
+    json_response = response.json()
+    toponym = json_response["response"]["GeoObjectCollection"][
+        "featureMember"][0]["GeoObject"]["boundedBy"]["Envelope"]
+
+    static_api_server = "https://static-maps.yandex.ru/1.x/?"
+    static_params = {
+        "bbox": ','.join(toponym["lowerCorner"].split()) + '~' + ','.join(toponym["upperCorner"].split()),
+        "l": map_mode
+    }
+
+    print(static_params["bbox"])
+
+    response = get(static_api_server, params=static_params)
+    with open('./static/img/img.png', "wb") as file:
+        file.write(response.content)
+
+    params["img"] = "map.png"
+    print(params["user"])
+
+    return render_template('map.html', **params)
 
 
 @app.route('/', methods=['GET', 'POST'])

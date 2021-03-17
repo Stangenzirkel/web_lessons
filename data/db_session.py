@@ -11,6 +11,7 @@ SqlAlchemyBase = dec.declarative_base()
 # получение сессий подключения к нашей базе данных
 __factory = None
 
+
 def global_init(db_file):
     global __factory
 
