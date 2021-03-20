@@ -2,6 +2,7 @@ from flask import Flask, redirect, render_template
 from flask_login import LoginManager, logout_user, login_required
 
 from datetime import datetime
+from flask_restful import reqparse, abort, Api, Resource
 from flask import Flask, render_template, redirect, request
 from data import db_session, jobs_api, user_api
 from data.users import User
@@ -16,11 +17,17 @@ from flask import make_response
 from flask import jsonify
 from requests import get
 
+from data import users_resource
+
 import os
 print(os.getcwd())
 
 app = Flask(__name__)
+api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+
+api.add_resource(users_resource.UserListResource, '/api/v2/users')
+api.add_resource(users_resource.UserResource, '/api/v2/users/<int:user_id>')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
