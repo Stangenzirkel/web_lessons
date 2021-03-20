@@ -82,7 +82,7 @@ def logout():
 
 
 @app.route('/user_show/<int:user_id>', methods=['GET', 'POST'])
-def map(user_id):
+def show_map(user_id):
     params = dict()
     params["title"] = "Карта пользователя"
     params["user"] = get(f'http://localhost:5000/api/user/{user_id}').json()['user']
